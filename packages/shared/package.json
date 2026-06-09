@@ -2,5 +2,10 @@
   "name": "@cockatiel/shared",
   "private": true,
   "type": "module",
-  "exports": {}
+  "exports": {
+    "./config/*": "./config/*.ts"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
 }
