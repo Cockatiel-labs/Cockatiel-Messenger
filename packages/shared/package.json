@@ -1,0 +1,6 @@
+{
+  "name": "@cockatiel/shared",
+  "private": true,
+  "type": "module",
+  "exports": {}
+}
