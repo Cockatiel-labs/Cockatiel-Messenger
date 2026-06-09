@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "@cockatiel/web",
   "private": true,
   "scripts": {
     "dev": "bun --bun next dev",
