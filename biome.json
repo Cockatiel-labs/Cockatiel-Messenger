@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!**/*/tsconfig.json", "!**/*.css"]
+    "includes": ["**", "!**/*/tsconfig.json", "!**/components/ui/*", "!**/*.css"]
   },
   "formatter": {
     "enabled": true,
