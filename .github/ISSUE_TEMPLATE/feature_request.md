@@ -4,7 +4,7 @@ name: Feature Request
 about: Suggest a new feature or improvement for Cockatiel Messenger
 title: "[Feature]: "
 labels: enhancement
--------------------
+---
 
 ## What problem would this feature solve?
 
