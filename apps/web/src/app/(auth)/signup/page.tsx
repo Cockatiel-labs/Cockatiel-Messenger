@@ -23,8 +23,9 @@ export default function Signup() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     control,
+    reset,
   } = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
     mode: "onChange",
@@ -42,14 +43,18 @@ export default function Signup() {
     defaultValue: "",
   });
 
-  const { mutate } = useSignupMutate();
+  const { mutate, isPending } = useSignupMutate();
 
   const usernameQuery = useDebounce(username, 500) ?? "";
 
   const { data, isLoading, isError } = useCheckUsernameQuery(usernameQuery);
 
   const onSubmit: SubmitHandler<SignupInput> = (payload) => {
-    mutate(payload);
+    mutate(payload, {
+      onSuccess: () => {
+        reset();
+      },
+    });
   };
 
   const strength = checkPasswordStrength(password);
@@ -206,8 +211,8 @@ export default function Signup() {
             </Field>
 
             <Field>
-              <Button type="submit" className="h-12 w-full">
-                Create Account
+              <Button type="submit" className="h-12 w-full" disabled={!isValid || isPending}>
+                {isPending ? "Creating Account..." : "Create Account"}
               </Button>
             </Field>
           </FieldGroup>
