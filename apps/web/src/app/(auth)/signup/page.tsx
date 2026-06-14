@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/utils";
-import { useCheckUsernameQuery } from "../hooks/use-auth";
+import { useCheckUsernameQuery, useSignupMutate } from "../hooks/use-auth";
 import { checkPasswordStrength } from "../utils/password-strength-checker";
 
 export default function Signup() {
@@ -42,12 +42,14 @@ export default function Signup() {
     defaultValue: "",
   });
 
+  const { mutate } = useSignupMutate();
+
   const usernameQuery = useDebounce(username, 500) ?? "";
 
   const { data, isLoading, isError } = useCheckUsernameQuery(usernameQuery);
 
-  const onSubmit: SubmitHandler<SignupInput> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<SignupInput> = (payload) => {
+    mutate(payload);
   };
 
   const strength = checkPasswordStrength(password);
