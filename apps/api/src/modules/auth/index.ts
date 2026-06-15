@@ -1,18 +1,14 @@
 import { checkUsernameQuery, signinSchema, signupSchema } from "@cockatiel/shared/schemas/auth/auth.schema";
-import jwt from "@elysia/jwt";
 import { Elysia } from "elysia";
-import { envConfig } from "../../config/env";
-import { ACCESS_TOKEN_TTL_SECONDS } from "../../constants/jwt";
+import { accessTokenCookieOptions } from "../../constants/cookie";
+import { ACCESS_TOKEN_EXP } from "../../constants/jwt";
+import { authGuard } from "../../guards/auth.guard";
+import { jwtConfig } from "../../plugins/jwt";
 import { AuthResult } from "./model";
 import { getIsUsernameAvailable, signIn, signup } from "./service";
 
 export const auth = new Elysia({ prefix: "/v1/auth" })
-  .use(
-    jwt({
-      name: "jwt",
-      secret: envConfig.JWT_SECRET,
-    }),
-  )
+  .use(jwtConfig)
   .get(
     "/check-username",
     async ({ query: { username }, set }) => {
@@ -36,58 +32,14 @@ export const auth = new Elysia({ prefix: "/v1/auth" })
       },
     },
   )
-  .post(
-    "/sign-in",
-    async ({ jwt, body, set }) => {
-      try {
-        const user = await signIn(body);
-
-        if (!user) {
-          set.status = 401;
-          return {
-            success: false,
-            message: "Invalid username or password",
-          };
-        }
-
-        const token = await jwt.sign({
-          sub: user.id,
-          exp: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_TTL_SECONDS, // 15 min
-        });
-
-        return {
-          success: true,
-          message: "Login Successfully",
-          data: {
-            user: {
-              id: user.id,
-              username: user.username,
-            },
-            token,
-          },
-        };
-      } catch (error) {
-        console.error("Sign-in error:", error);
-
-        set.status = 500;
-        return {
-          success: false,
-          message: "Internal server error",
-        };
-      }
-    },
-    {
-      body: signinSchema,
-      response: {
-        200: AuthResult.authResponse,
-        401: AuthResult.errorResponse,
-        500: AuthResult.errorResponse,
-      },
-    },
+  .group("/profile", (app) =>
+    app.use(authGuard).get("/", async ({ payload }) => {
+      return payload;
+    }),
   )
   .post(
     "/sign-up",
-    async ({ body, jwt, set }) => {
+    async ({ jwt, body, cookie: { accessToken }, set }) => {
       try {
         const user = await signup(body);
 
@@ -102,7 +54,12 @@ export const auth = new Elysia({ prefix: "/v1/auth" })
 
         const token = await jwt.sign({
           sub: user.id,
-          exp: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_TTL_SECONDS, // 15 min
+          exp: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_EXP, // 15 min
+        });
+
+        accessToken.set({
+          value: token,
+          ...accessTokenCookieOptions,
         });
 
         set.status = 201;
@@ -114,7 +71,6 @@ export const auth = new Elysia({ prefix: "/v1/auth" })
               id: user.id,
               username: user.username,
             },
-            token,
           },
         };
       } catch (error) {
@@ -132,6 +88,59 @@ export const auth = new Elysia({ prefix: "/v1/auth" })
       response: {
         201: AuthResult.authResponse,
         409: AuthResult.errorResponse,
+        500: AuthResult.errorResponse,
+      },
+    },
+  )
+  .post(
+    "/sign-in",
+    async ({ jwt, body, cookie: { accessToken }, set }) => {
+      try {
+        const user = await signIn(body);
+
+        if (!user) {
+          set.status = 401;
+          return {
+            success: false,
+            message: "Invalid username or password",
+          };
+        }
+
+        const token = await jwt.sign({
+          sub: user.id,
+          exp: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_EXP, // 15 min
+        });
+
+        accessToken.set({
+          value: token,
+          ...accessTokenCookieOptions,
+        });
+
+        return {
+          success: true,
+          message: "Login Successfully",
+          data: {
+            user: {
+              id: user.id,
+              username: user.username,
+            },
+          },
+        };
+      } catch (error) {
+        console.error("Sign-in error:", error);
+
+        set.status = 500;
+        return {
+          success: false,
+          message: "Internal server error",
+        };
+      }
+    },
+    {
+      body: signinSchema,
+      response: {
+        200: AuthResult.authResponse,
+        401: AuthResult.errorResponse,
         500: AuthResult.errorResponse,
       },
     },
