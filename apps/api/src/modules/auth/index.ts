@@ -1,3 +1,4 @@
+import { usernameRegex } from "@cockatiel/shared/constants/regex";
 import { checkUsernameQuery, signinSchema, signupSchema } from "@cockatiel/shared/schemas/auth/auth.schema";
 import { Elysia } from "elysia";
 import { AuthResult } from "./model";
@@ -7,6 +8,15 @@ export const auth = new Elysia({ prefix: "/v1/auth" })
   .get(
     "/check-username",
     async ({ query: { username }, set }) => {
+      if (!usernameRegex.test(username)) {
+        set.status = 400;
+
+        return {
+          success: false,
+          message: "Username must start with a letter and contain only letters, numbers, and underscores",
+        };
+      }
+
       try {
         return getIsUsernameAvailable(username);
       } catch (error) {
@@ -23,6 +33,7 @@ export const auth = new Elysia({ prefix: "/v1/auth" })
       query: checkUsernameQuery,
       response: {
         200: AuthResult.checkUsernameResponse,
+        400: AuthResult.errorResponse,
         500: AuthResult.errorResponse,
       },
     },
