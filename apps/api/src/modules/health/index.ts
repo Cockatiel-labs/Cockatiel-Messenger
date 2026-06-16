@@ -10,8 +10,9 @@ export const health = new Elysia({ prefix: "/v1/health" }).get("/", async ({ set
       status: "UP",
       message: "Database connection successful",
     };
-  } catch (_err) {
+  } catch (error) {
     set.status = 503;
+    console.error(error);
 
     return {
       success: false,

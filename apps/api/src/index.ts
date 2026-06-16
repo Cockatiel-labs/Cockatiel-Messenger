@@ -3,6 +3,9 @@ import { Elysia } from "elysia";
 import { envConfig } from "./config/env";
 import { auth } from "./modules/auth";
 import { health } from "./modules/health";
+import { checkDatabaseHealth } from "./modules/health/service";
+
+await checkDatabaseHealth();
 
 const app = new Elysia({ prefix: "/api" })
   .use(
