@@ -103,6 +103,66 @@ export const auth = new Elysia({ prefix: "/v1/auth" })
       },
     },
   )
+  .group("/profile", (app) =>
+    app.use(authGuard).get("/", async ({ payload }) => {
+      return payload;
+    }),
+  )
+  .post(
+    "/sign-up",
+    async ({ jwt, body, cookie: { accessToken }, set }) => {
+      try {
+        const user = await signup(body);
+
+        if (!user) {
+          set.status = 409;
+
+          return {
+            success: false,
+            message: "Username already exists",
+          };
+        }
+
+        const token = await jwt.sign({
+          sub: user.id,
+          exp: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_EXP, // 15 min
+        });
+
+        accessToken.set({
+          value: token,
+          ...accessTokenCookieOptions,
+        });
+
+        set.status = 201;
+        return {
+          success: true,
+          message: "User created Successfully",
+          data: {
+            user: {
+              id: user.id,
+              username: user.username,
+            },
+          },
+        };
+      } catch (error) {
+        console.error("Sign-up error:", error);
+
+        set.status = 500;
+        return {
+          success: false,
+          message: "Internal server error",
+        };
+      }
+    },
+    {
+      body: signupSchema,
+      response: {
+        201: AuthResult.authResponse,
+        409: AuthResult.errorResponse,
+        500: AuthResult.errorResponse,
+      },
+    },
+  )
   .post(
     "/sign-in",
     async ({ jwt, body, cookie: { accessToken }, set }) => {
@@ -153,6 +213,27 @@ export const auth = new Elysia({ prefix: "/v1/auth" })
         200: AuthResult.authResponse,
         401: AuthResult.errorResponse,
         500: AuthResult.errorResponse,
+      },
+    },
+  )
+  .post(
+    "/logout",
+    async ({ cookie: { accessToken } }) => {
+      accessToken.set({
+        value: "",
+        ...accessTokenCookieOptions,
+        maxAge: 0, // overwrite
+        expires: new Date(0), // overwrite
+      });
+
+      return {
+        success: true,
+        message: "Logged out successfully",
+      };
+    },
+    {
+      response: {
+        200: AuthResult.logoutResponse,
       },
     },
   );
