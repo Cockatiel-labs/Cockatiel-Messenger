@@ -58,7 +58,7 @@ export const auth = new Elysia({ prefix: "/v1/auth" })
       .use(authRateLimit)
       .post(
         "/sign-up",
-        async ({ accessJwtNamespace, body, cookie: { accessToken, refreshToken }, set }) => {
+        async ({ accessJwtNamespace, refreshJwtNamespace, body, cookie: { accessToken, refreshToken }, set }) => {
           try {
             const user = await signup(body);
 
@@ -76,7 +76,7 @@ export const auth = new Elysia({ prefix: "/v1/auth" })
               exp: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_EXP, // 15 minutes
             });
 
-            const refreshJwt = await accessJwtNamespace.sign({
+            const refreshJwt = await refreshJwtNamespace.sign({
               sub: user.id,
               exp: Math.floor(Date.now() / 1000) + REFRESH_TOKEN_EXP, // 7 days
             });
