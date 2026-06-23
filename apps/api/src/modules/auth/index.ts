@@ -1,5 +1,5 @@
-import { usernameRegex } from "@cockatiel/shared/constants/regex";
-import { checkUsernameQuery, signinSchema, signupSchema } from "@cockatiel/shared/schemas/auth/auth.schema";
+import { usernameRegex } from "@joo-joo/shared/constants/regex";
+import { checkUsernameQuery, signinSchema, signupSchema } from "@joo-joo/shared/schemas/auth/auth.schema";
 import { Elysia } from "elysia";
 import { accessTokenCookieOptions, refreshTokenCookieOptions } from "../../constants/cookie";
 import { ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP } from "../../constants/jwt";

@@ -113,8 +113,8 @@ export default function Onboarding() {
                     </div>
 
                     <p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
-                      Cockatiel Messenger is built with end-to-end encryption and zero tracking. Your conversations
-                      belong to you — always.
+                      Joo-joo Messenger is built with end-to-end encryption and zero tracking. Your conversations belong
+                      to you — always.
                     </p>
 
                     <div className="mt-8 space-y-6">
@@ -176,7 +176,7 @@ export default function Onboarding() {
                     </div>
 
                     <p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
-                      Cockatiel Messenger delivers your messages instantly and reliably. With optimized performance and
+                      Joo-joo Messenger delivers your messages instantly and reliably. With optimized performance and
                       cloud sync, you'll never miss a moment.
                     </p>
 
@@ -239,8 +239,8 @@ export default function Onboarding() {
                     </div>
 
                     <p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
-                      Whether it's friends, family, or your team, Cockatiel Messenger keeps everyone connected —
-                      anywhere, anytime.
+                      Whether it's friends, family, or your team, Joo-joo Messenger keeps everyone connected — anywhere,
+                      anytime.
                     </p>
 
                     <div className="mt-8 space-y-6">

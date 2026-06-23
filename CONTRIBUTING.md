@@ -1,72 +1,73 @@
-# Contributing to Cockatiel Messenger
+# Contributing to Joo-joo Messenger
 
-First of all, thank you for your interest in contributing to Cockatiel Messenger.
+Thank you for your interest in contributing to Joo-joo Messenger.
 
-Cockatiel is an open-source, privacy-first messaging platform built in public. Contributions of all sizes are welcome, whether it's reporting bugs, improving documentation, suggesting ideas, or submitting code changes.
+This project is open source, privacy-focused, and community driven. Contributions of all sizes are welcome, including bug reports, documentation improvements, design feedback, testing, and code changes.
 
 ## Ways to Contribute
 
-You can help the project by:
+You can help by:
 
-* Reporting bugs
-* Suggesting new features
-* Improving documentation
-* Reviewing code and pull requests
-* Fixing issues
-* Implementing new features
+- Reporting bugs
+- Suggesting features
+- Improving documentation
+- Reviewing pull requests
+- Fixing issues
+- Improving UX and accessibility
+- Sharing feedback on architecture and product direction
 
-## Before You Start
+## Where to Start
 
-Before opening a new issue, please:
+If you are new to the project, look for issues labeled:
 
-* Search existing issues and discussions to avoid duplicates
-* Check the project roadmap
-* Make sure your proposal aligns with the project's goals
+- `good first issue`
+- `help wanted`
+- `documentation`
+
+These are the easiest entry points for first-time contributors.
 
 ## Development Setup
 
 ### Requirements
 
-* Bun
-* Docker
-* Docker Compose
+- Bun
+- Docker
+- Docker Compose
 
-### Clone the Repository
-
-```bash
-git clone https://github.com/Cockatiel-labs/Cockatiel-Messenger.git
-cd Cockatiel-Messenger
-```
-
-### Environment Variables
-
-Copy the example environment file:
+### Clone the repository
 
 ```bash
-cp .env.example .env
+git clone https://github.com/Cockatiel-labs/Joo-Joo-Messenger.git
+cd Joo-joo-Messenger
 ```
 
-Then update the values in `.env` as needed.
-
-### Install Dependencies
+### Install dependencies
 
 ```bash
 bun install
 ```
 
-### Start Infrastructure Services
+### Configure environment variables
+
+```bash
+cp .env.example .env
+```
+
+Then update the values in `.env` for your local environment.
+
+### Start infrastructure services
 
 ```bash
 docker compose -f ./infra/docker/docker-compose.yml up -d
 ```
 
-### Run the Backend
+### Run the backend
 
 ```bash
 bun run dev:api
 ```
 
-### Run the Frontend
+### Run the frontend
 
 ```bash
 bun run dev:web
@@ -74,66 +75,51 @@ bun run dev:web
 
 ## Code Style
 
-This project uses Biome for formatting and linting.
+This repository uses Biome for formatting and linting.
 
-Before opening a pull request, please run:
+Before opening a pull request, run:
 
 ```bash
 bun run format
 bun run lint
 ```
 
-Available scripts:
+## Pull Request Guidelines
 
-```bash
-bun run dev:web
-bun run dev:api
+Please:
 
-bun run build:web
-bun run build:api
-```
+- Open pull requests against the `develop` branch
+- Keep changes small and focused
+- Link the related issue when possible
+- Update documentation if behavior changes
+- Make sure the project still builds
+- Respond to review feedback kindly and clearly
 
-## Pull Requests
+## Issue Guidelines
 
-When submitting a pull request:
+When opening an issue, include enough context to understand the problem or request.
 
-* Open pull requests against the `develop` branch
-* Do not target the `main` branch
-* Keep changes focused and reasonably scoped
-* Link related issues whenever possible
-* Update documentation when necessary
-* Ensure the project builds successfully
-* Run formatting and linting checks before submitting
-* Respond to review feedback constructively
+For bugs, please include:
 
-## Good First Issues
+- Steps to reproduce
+- Expected behavior
+- Actual behavior
+- Screenshots or logs if available
 
-If you're new to the project, look for issues labeled:
+For feature requests, please explain:
 
-* `good first issue`
-* `help wanted`
+- The problem being solved
+- The proposed solution
+- Any alternatives you considered
 
-These issues are intentionally scoped for new contributors and are a great way to get familiar with the codebase.
+## Communication
 
-## Coding Guidelines
+Use GitHub Discussions for questions, general ideas, and conversations that do not require an issue.
 
-* Write clear and maintainable code
-* Prefer readability over cleverness
-* Follow existing project conventions
-* Avoid introducing unnecessary dependencies
+If something is clearly a bug or requires action, open an issue instead.
 
-## Questions and Discussions
+## Thank You
 
-For questions, ideas, and general conversations, please use GitHub Discussions.
+Every contribution helps move the project forward.
 
-If you've identified a bug or have a specific task that requires action, please open an Issue instead.
-
-If you're unsure where your topic belongs, start a Discussion first.
-
-## Code of Conduct
-
-Please be respectful and constructive when interacting with other contributors.
-
-We aim to build an open, welcoming, and collaborative community.
-
-Thank you for helping improve Cockatiel Messenger.
+Thanks for helping build Joo-joo Messenger.
