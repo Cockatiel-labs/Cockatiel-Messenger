@@ -1,12 +1,13 @@
 import { usernameRegex } from "@joo-joo/shared/constants/regex";
 import { checkUsernameQuery, signinSchema, signupSchema } from "@joo-joo/shared/schemas/auth/auth.schema";
-import { Elysia } from "elysia";
+import { Elysia, status } from "elysia";
 import { accessTokenCookieOptions, refreshTokenCookieOptions } from "../../constants/cookie";
 import { ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP } from "../../constants/jwt";
 import { authGuard } from "../../guards/auth.guard";
 import { accessJwtConfig, refreshJwtConfig } from "../../plugins/jwt";
-import { authRateLimit, mediumRateLimit } from "../../plugins/rate-limiter";
+import { authRateLimit, mediumRateLimit, refreshTokenRateLimit } from "../../plugins/rate-limiter";
 import { AuthResult } from "./model";
+import { getUserById } from "./repository";
 import { getIsUsernameAvailable, signIn, signup } from "./service";
 
 export const auth = new Elysia({ prefix: "/v1/auth" })
@@ -50,7 +51,15 @@ export const auth = new Elysia({ prefix: "/v1/auth" })
 
   .group("/profile", (app) =>
     app.use(authGuard).get("/", async ({ payload }) => {
-      return payload;
+      const { sub } = payload;
+
+      const user = await getUserById(sub);
+
+      if (!user) {
+        throw status(404, "User not found");
+      }
+
+      return user;
     }),
   )
   .group("", (app) =>
@@ -214,41 +223,49 @@ export const auth = new Elysia({ prefix: "/v1/auth" })
       },
     },
   )
-  .post("/refresh", async ({ refreshJwtNamespace, accessJwtNamespace, cookie: { refreshToken, accessToken }, set }) => {
-    const token = refreshToken.value as string | undefined;
 
-    if (!token) {
-      set.status = 401;
+  .group("", (app) =>
+    app
+      .use(refreshTokenRateLimit)
+      .post(
+        "/refresh",
+        async ({ refreshJwtNamespace, accessJwtNamespace, cookie: { refreshToken, accessToken }, set }) => {
+          const token = refreshToken.value as string | undefined;
 
-      return {
-        success: false,
-        message: "Refresh token missing",
-      };
-    }
+          if (!token) {
+            set.status = 401;
 
-    const payload = await refreshJwtNamespace.verify(token);
+            return {
+              success: false,
+              message: "Refresh token missing",
+            };
+          }
 
-    if (!payload) {
-      set.status = 401;
+          const payload = await refreshJwtNamespace.verify(token);
 
-      return {
-        success: false,
-        message: "Invalid refresh token",
-      };
-    }
+          if (!payload) {
+            set.status = 401;
 
-    const newAccessToken = await accessJwtNamespace.sign({
-      sub: payload.sub,
-      exp: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_EXP,
-    });
+            return {
+              success: false,
+              message: "Invalid refresh token",
+            };
+          }
 
-    accessToken.set({
-      value: newAccessToken,
-      ...accessTokenCookieOptions,
-    });
+          const newAccessToken = await accessJwtNamespace.sign({
+            sub: payload.sub,
+            exp: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_EXP,
+          });
 
-    return {
-      success: true,
-      message: "Access token refreshed",
-    };
-  });
+          accessToken.set({
+            value: newAccessToken,
+            ...accessTokenCookieOptions,
+          });
+
+          return {
+            success: true,
+            message: "Access token refreshed",
+          };
+        },
+      ),
+  );
