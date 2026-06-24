@@ -223,41 +223,49 @@ export const auth = new Elysia({ prefix: "/v1/auth" })
       },
     },
   )
-  .post("/refresh", async ({ refreshJwtNamespace, accessJwtNamespace, cookie: { refreshToken, accessToken }, set }) => {
-    const token = refreshToken.value as string | undefined;
 
-    if (!token) {
-      set.status = 401;
+  .group("", (app) =>
+    app
+      .use(refreshTokenRateLimit)
+      .post(
+        "/refresh",
+        async ({ refreshJwtNamespace, accessJwtNamespace, cookie: { refreshToken, accessToken }, set }) => {
+          const token = refreshToken.value as string | undefined;
 
-      return {
-        success: false,
-        message: "Refresh token missing",
-      };
-    }
+          if (!token) {
+            set.status = 401;
 
-    const payload = await refreshJwtNamespace.verify(token);
+            return {
+              success: false,
+              message: "Refresh token missing",
+            };
+          }
 
-    if (!payload) {
-      set.status = 401;
+          const payload = await refreshJwtNamespace.verify(token);
 
-      return {
-        success: false,
-        message: "Invalid refresh token",
-      };
-    }
+          if (!payload) {
+            set.status = 401;
 
-    const newAccessToken = await accessJwtNamespace.sign({
-      sub: payload.sub,
-      exp: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_EXP,
-    });
+            return {
+              success: false,
+              message: "Invalid refresh token",
+            };
+          }
 
-    accessToken.set({
-      value: newAccessToken,
-      ...accessTokenCookieOptions,
-    });
+          const newAccessToken = await accessJwtNamespace.sign({
+            sub: payload.sub,
+            exp: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_EXP,
+          });
 
-    return {
-      success: true,
-      message: "Access token refreshed",
-    };
-  });
+          accessToken.set({
+            value: newAccessToken,
+            ...accessTokenCookieOptions,
+          });
+
+          return {
+            success: true,
+            message: "Access token refreshed",
+          };
+        },
+      ),
+  );
