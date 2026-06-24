@@ -15,7 +15,11 @@ export const authGuard = new Elysia({ name: "authGuard" })
       throw status(401, "Unauthorized");
     }
 
-    const payload = await accessJwtNamespace.verify(token);
+    const payload: { sub: string; exp: number; iat: number } | false = await accessJwtNamespace.verify(token);
+
+    if (!payload) {
+      throw status(401, "Unauthorized");
+    }
 
     return { payload };
   });
