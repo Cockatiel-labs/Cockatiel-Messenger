@@ -8,6 +8,7 @@
   "scripts": {
     "lint": "biome check .",
     "format": "biome format --write .",
+    "migrate": "bun --filter @joo-joo/api db:migrate",
     "dev:web": "bun --filter @joo-joo/web dev",
     "dev:api": "bun --filter @joo-joo/api dev",
     "build:web": "bun --filter @joo-joo/web build",

@@ -160,7 +160,9 @@ bun install
 ### Configure environment variables
 
 ```bash
-cp .env.example .env
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+cp infra/docker/.env.example infra/docker/.env
 ```
 
 Update the values in `.env` to match your local setup.
@@ -169,6 +171,14 @@ Update the values in `.env` to match your local setup.
 
 ```bash
 docker compose -f ./infra/docker/docker-compose.yml up -d
+```
+
+### Run database migrations
+
+Apply the existing database migrations to your local PostgreSQL database.
+
+```bash
+bun run migrate
 ```
 
 ### Run the backend

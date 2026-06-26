@@ -38,7 +38,7 @@ These are the easiest entry points for first-time contributors.
 
 ```bash
 git clone https://github.com/Cockatiel-labs/Joo-Joo-Messenger.git
-cd Joo-joo-Messenger
+cd Joo-Joo-Messenger
 ```
 
 ### Install dependencies
@@ -50,7 +50,9 @@ bun install
 ### Configure environment variables
 
 ```bash
-cp .env.example .env
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+cp infra/docker/.env.example infra/docker/.env
 ```
 
 Then update the values in `.env` for your local environment.
@@ -59,6 +61,14 @@ Then update the values in `.env` for your local environment.
 
 ```bash
 docker compose -f ./infra/docker/docker-compose.yml up -d
+```
+
+### Run database migrations
+
+Apply the existing database migrations to your local PostgreSQL database.
+
+```bash
+bun run migrate
 ```
 
 ### Run the backend
@@ -84,16 +94,22 @@ bun run format
 bun run lint
 ```
 
-## Pull Request Guidelines
+## Pull Requests
 
-Please:
+Please follow these guidelines:
 
-- Open pull requests against the `develop` branch
-- Keep changes small and focused
-- Link the related issue when possible
-- Update documentation if behavior changes
-- Make sure the project still builds
-- Respond to review feedback kindly and clearly
+- Open pull requests against the `develop` branch.
+- Keep changes small and focused.
+- Run formatting and linting before submitting.
+- Make sure the project builds successfully.
+- Update documentation when needed.
+- Rebase your branch if it has fallen behind `develop`.
+- Respond to review feedback kindly and clearly.
+
+### Branches
+
+- `main` contains stable releases.
+- `develop` is the primary development branch.
 
 ## Issue Guidelines
 
