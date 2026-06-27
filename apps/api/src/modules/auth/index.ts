@@ -4,9 +4,9 @@ import { Elysia, status } from "elysia";
 import { accessTokenCookieOptions, refreshTokenCookieOptions } from "../../constants/cookie";
 import { ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP } from "../../constants/jwt";
 import { authGuard } from "../../guards/auth.guard";
-import { accessJwtConfig, refreshJwtConfig } from "../../plugins/jwt";
 import { csrf } from "../../plugins/csrf";
 import { deleteCsrfToken, setCsrfToken } from "../../plugins/csrf-store";
+import { accessJwtConfig, refreshJwtConfig } from "../../plugins/jwt";
 import { authRateLimit, mediumRateLimit, refreshTokenRateLimit } from "../../plugins/rate-limiter";
 import { AuthResult } from "./model";
 import { getUserById } from "./repository";
@@ -69,7 +69,13 @@ export const auth = new Elysia({ prefix: "/v1/auth" })
       .use(authRateLimit)
       .post(
         "/sign-up",
-        async ({ accessJwtNamespace, refreshJwtNamespace, body, cookie: { accessToken, refreshToken, csrfToken }, set }) => {
+        async ({
+          accessJwtNamespace,
+          refreshJwtNamespace,
+          body,
+          cookie: { accessToken, refreshToken, csrfToken },
+          set,
+        }) => {
           try {
             const user = await signup(body);
 
@@ -143,7 +149,13 @@ export const auth = new Elysia({ prefix: "/v1/auth" })
       )
       .post(
         "/sign-in",
-        async ({ accessJwtNamespace, refreshJwtNamespace, body, cookie: { accessToken, refreshToken, csrfToken }, set }) => {
+        async ({
+          accessJwtNamespace,
+          refreshJwtNamespace,
+          body,
+          cookie: { accessToken, refreshToken, csrfToken },
+          set,
+        }) => {
           try {
             const user = await signIn(body);
 

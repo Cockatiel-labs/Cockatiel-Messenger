@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
-import { csrf } from "./csrf";
 import { csrfCookieOptions } from "../constants/cookie";
+import { csrf } from "./csrf";
 import { deleteCsrfToken, getCsrfToken, setCsrfToken } from "./csrf-store";
 
 const SAFE_METHODS = ["GET", "HEAD", "OPTIONS"] as const;
@@ -21,8 +21,9 @@ const SAFE_METHODS = ["GET", "HEAD", "OPTIONS"] as const;
  * Safe methods (GET/HEAD/OPTIONS) pass through without verification.
  * Returns 403 on missing or invalid CSRF token.
  */
-export const csrfProtection = new Elysia({ name: "csrfProtection" })
-  .onBeforeHandle({ as: "global" }, async ({ request, set, payload }) => {
+export const csrfProtection = new Elysia({ name: "csrfProtection" }).onBeforeHandle(
+  { as: "global" },
+  async ({ request, set, payload }) => {
     const method = request.method.toUpperCase();
 
     if (SAFE_METHODS.includes(method as (typeof SAFE_METHODS)[number])) {
@@ -70,7 +71,8 @@ export const csrfProtection = new Elysia({ name: "csrfProtection" })
 
     // Send the rotated token back to the client via cookie.
     set.headers["set-cookie"] = buildCsrfSetCookie(rotatedToken);
-  });
+  },
+);
 
 /**
  * Build a Set-Cookie header string for the CSRF token cookie.
