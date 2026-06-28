@@ -2,7 +2,7 @@
 
 ## Our Pledge
 
-We are committed to making Jojo Messenger a welcoming, respectful, and collaborative project for everyone.
+We are committed to making Joo-Joo Messenger a welcoming, respectful, and collaborative project for everyone.
 
 We expect all contributors, maintainers, and community members to help create a positive environment.
 

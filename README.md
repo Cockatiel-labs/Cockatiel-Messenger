@@ -1,7 +1,7 @@
-# Joo-joo Messenger
+# Joo-Joo Messenger
 
 <p align="center">
-  <img src="./docs/images/onboarding-preview.png" alt="Jojo Messenger onboarding preview" width="100%" />
+  <img src="./docs/images/onboarding-preview.png" alt="Joo-Joo Messenger onboarding preview" width="100%" />
 </p>
 
 <p align="center">
@@ -20,11 +20,11 @@
 
 ---
 
-## Why Jojo Messenger?
+## Why Joo-Joo Messenger?
 
 Most messaging platforms ask people to trade privacy for convenience.
 
-Jojo Messenger is being built to show that modern communication can be:
+Joo-Joo Messenger is being built to show that modern communication can be:
 
 - Private
 - Open source
@@ -40,7 +40,7 @@ The goal is simple: build a messenger that belongs to its users, not advertisers
 
 ⚠️ **Active development**
 
-Jojo Messenger is under heavy development and is not production ready yet.
+Joo-Joo Messenger is under heavy development and is not production ready yet.
 
 Expect rapid changes, evolving APIs, and ongoing design improvements.
 
