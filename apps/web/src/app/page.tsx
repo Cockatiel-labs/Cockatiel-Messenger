@@ -309,9 +309,8 @@ export default function Onboarding() {
               </Button>
               {isLastStep ? (
                 <Link href="/signin">
-                  <Button type="button" className="h-12 w-full sm:w-32" onClick={() => api?.scrollNext()}>
-                    Next
-                    <ArrowRight className="size-4" />
+                  <Button type="button">
+                    Get Started <ArrowRight />
                   </Button>
                 </Link>
               ) : (
