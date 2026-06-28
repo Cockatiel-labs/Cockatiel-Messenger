@@ -1,19 +1,6 @@
 import { envConfig } from "../config/env";
 import { ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP } from "./jwt";
 
-/**
- * SameSite policy for cookies.
- *
- * In development the frontend (localhost:3000) and API (localhost:4000) are
- * different origins. Using Strict there would prevent cookies from being sent
- * on the very first navigation from the frontend to the API, breaking the
- * auth flow. Lax is safe here because CSRF protection is provided by the
- * `modern-csrf` middleware (Sec-Fetch-Site) on all state-changing routes.
- *
- * In production we use Strict for maximum cross-origin protection, assuming
- * the deployment is configured so that the frontend and API are same-site
- * (e.g. same domain, or API is a subdomain with appropriate cookie scope).
- */
 const sameSitePolicy = envConfig.NODE_ENV === "production" ? "strict" : "lax";
 
 export const accessTokenCookieOptions = {
