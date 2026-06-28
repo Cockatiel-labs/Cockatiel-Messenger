@@ -5,6 +5,7 @@ import { envConfig } from "@/config/env";
 const api: AxiosInstance = axios.create({
   baseURL: envConfig.NEXT_PUBLIC_BASE_URL,
   timeout: 30 * 1000,
+  withCredentials: true,
 });
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {

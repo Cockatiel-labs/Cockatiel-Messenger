@@ -11,9 +11,9 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "@joo-joo/shared": "workspace:*",
     "@elysia/cors": "^1.4.2",
     "@elysia/jwt": "^1.4.2",
+    "@joo-joo/shared": "workspace:*",
     "drizzle-orm": "^0.45.2",
     "drizzle-typebox": "^0.3.3",
     "elysia": "latest",

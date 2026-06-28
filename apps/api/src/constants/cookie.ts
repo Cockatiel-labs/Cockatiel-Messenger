@@ -1,11 +1,13 @@
 import { envConfig } from "../config/env";
 import { ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP } from "./jwt";
 
+const sameSitePolicy = envConfig.NODE_ENV === "production" ? "strict" : "lax";
+
 export const accessTokenCookieOptions = {
   httpOnly: true,
   maxAge: ACCESS_TOKEN_EXP,
   secure: envConfig.NODE_ENV === "production",
-  sameSite: envConfig.NODE_ENV === "production" ? "strict" : "lax",
+  sameSite: sameSitePolicy,
   path: "/",
 } as const;
 
@@ -13,6 +15,6 @@ export const refreshTokenCookieOptions = {
   httpOnly: true,
   maxAge: REFRESH_TOKEN_EXP,
   secure: envConfig.NODE_ENV === "production",
-  sameSite: envConfig.NODE_ENV === "production" ? "strict" : "lax",
+  sameSite: sameSitePolicy,
   path: "/api/v1/auth/refresh",
 } as const;
