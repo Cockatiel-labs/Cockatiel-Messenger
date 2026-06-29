@@ -40,6 +40,7 @@ export const users = pgTable("users", (t) => ({
       withTimezone: true,
     })
     .defaultNow()
+    .$onUpdateFn(() => new Date())
     .notNull(),
 
   lastOnlineAt: t.timestamp("last_online_at", {

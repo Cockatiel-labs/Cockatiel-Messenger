@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { db } from "../../db";
 import { sessions, users } from "../../db/schema";
 
@@ -11,17 +11,29 @@ export async function isUsernameAvailable(username: string) {
   return user === undefined;
 }
 
-export async function getUserById(id: string) {
+export async function findUserById(userId: string) {
   return db.query.users.findFirst({
     columns: {
       id: true,
       username: true,
     },
-    where: (user, { eq }) => eq(user.id, id),
+    where: (user, { eq }) => eq(user.id, userId),
   });
 }
 
-export async function getUserByUsername(username: string) {
+/** Like `findUserById` but also `returns the password hash` for credential checks. */
+export async function findUserByIdWithPassword(userId: string) {
+  return db.query.users.findFirst({
+    columns: {
+      id: true,
+      username: true,
+      password: true,
+    },
+    where: (user, { eq }) => eq(user.id, userId),
+  });
+}
+
+export async function findUserByUsername(username: string) {
   return db.query.users.findFirst({
     columns: {
       id: true,
@@ -45,42 +57,65 @@ export async function updateUserPassword(userId: string, passwordHash: string) {
   await db.update(users).set({ password: passwordHash }).where(eq(users.id, userId));
 }
 
-// ─── Session Management ───────────────────────────────────────────
+export async function insertSession(data: { userId: string; refreshTokenHash: string; expiresAt: Date }) {
+  const [session] = await db
+    .insert(sessions)
+    .values({
+      userId: data.userId,
+      refreshTokenHash: data.refreshTokenHash,
+      expiresAt: data.expiresAt,
+    })
+    .returning({ id: sessions.id });
 
-export async function createSession(data: {
-  userId: string;
-  userAgent?: string;
-  refreshTokenHash?: string;
-  expiresAt?: Date;
-}) {
-  const [session] = await db.insert(sessions).values(data).returning();
   return session;
 }
 
-export async function getSessionById(id: string) {
+export async function findSessionByRefreshTokenHash(refreshTokenHash: string) {
   return db.query.sessions.findFirst({
-    where: (session, { eq }) => eq(session.id, id),
+    where: (session, { eq }) => eq(session.refreshTokenHash, refreshTokenHash),
   });
 }
 
-export async function storeRefreshToken(sessionId: string, refreshTokenHash: string) {
-  await db.update(sessions).set({ refreshTokenHash, lastUsedAt: new Date() }).where(eq(sessions.id, sessionId));
-}
-
-export async function revokeSession(sessionId: string) {
+/** Mark a single session revoked (used on single-device logout). */
+export async function revokeSessionById(sessionId: string) {
   await db.update(sessions).set({ revokedAt: new Date() }).where(eq(sessions.id, sessionId));
 }
 
-export async function deleteSession(id: string) {
-  await db.delete(sessions).where(eq(sessions.id, id));
+/**
+ * Revoke every active session that belongs to a user.
+ * Used by: logout-all, change-password, reuse-detection.
+ */
+
+export async function revokeAllUserSessions(userId: string) {
+  await db
+    .update(sessions)
+    .set({ revokedAt: new Date() })
+    .where(and(eq(sessions.userId, userId), isNull(sessions.revokedAt)));
 }
 
-export async function deleteAllSessionsForUser(userId: string) {
-  await db.delete(sessions).where(eq(sessions.userId, userId));
-}
+/**
+ * Atomically revoke the old session and create a replacement keyed to the
+ * new refresh token.  A transaction guarantees both writes succeed together
+ * — no window where the old token is still live but the new one isn't tracked.
+ */
+export async function rotateSessiontransaction(data: {
+  oldSessionId: string;
+  userId: string;
+  newRefreshTokenHash: string;
+  expiresAt: Date;
+}) {
+  return db.transaction(async (transaction) => {
+    await transaction.update(sessions).set({ revokedAt: new Date() }).where(eq(sessions.id, data.oldSessionId));
 
-export async function getAllSessionsForUser(userId: string) {
-  return db.query.sessions.findMany({
-    where: (session, { eq }) => eq(session.userId, userId),
+    const [newSession] = await transaction
+      .insert(sessions)
+      .values({
+        userId: data.userId,
+        refreshTokenHash: data.newRefreshTokenHash,
+        expiresAt: data.expiresAt,
+      })
+      .returning({ id: sessions.id });
+
+    return newSession;
   });
 }

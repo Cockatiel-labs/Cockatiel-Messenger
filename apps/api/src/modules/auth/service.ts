@@ -1,4 +1,5 @@
-import type { SigninInput, SignupInput } from "@joo-joo/shared/schemas/auth/auth.schema";
+import type { ChangePasswordInput, SigninInput, SignupInput } from "@joo-joo/shared/schemas/auth/auth.schema";
+import { hashPassword, hashToken } from "../../libs/helpers/hash";
 import * as repository from "./repository";
 
 export async function getIsUsernameAvailable(username: string) {
@@ -6,7 +7,7 @@ export async function getIsUsernameAvailable(username: string) {
 }
 
 export async function signIn(body: SigninInput) {
-  const user = await repository.getUserByUsername(body.username);
+  const user = await repository.findUserByUsername(body.username);
 
   if (!user) return null;
 
@@ -22,16 +23,12 @@ export async function signup(body: SignupInput) {
 
   if (!isUsernameAvailable) return null;
 
-  const argonHash = await Bun.password.hash(body.password, {
-    algorithm: "argon2id",
-    memoryCost: 1024 * 64, // memory usage in kb (64MiB)
-    timeCost: 3, // the number of iterations
-  });
+  const passwordHash = await hashPassword(body.password);
 
   try {
     const user = await repository.createUser({
       username: body.username,
-      password: argonHash,
+      password: passwordHash,
     });
     return user;
   } catch (error) {
@@ -40,25 +37,68 @@ export async function signup(body: SignupInput) {
     return null;
   }
 }
-// [UPDATED] - Added changePassword feature
-export async function changePassword(userId: string, currentPassword: string, newPassword: string) {
-  const user = await repository.getUserById(userId);
-  if (!user) return false;
 
-  const userWithPassword = await repository.getUserByUsername(user.username);
-  if (!userWithPassword) return false;
+export async function createSession(data: { userId: string; refreshToken: string; expiresAt: Date }) {
+  const refreshTokenHash = await hashToken(data.refreshToken);
 
-  const isMatch = await Bun.password.verify(currentPassword, userWithPassword.password);
+  await repository.insertSession({
+    userId: data.userId,
+    refreshTokenHash: refreshTokenHash,
+    expiresAt: data.expiresAt,
+  });
+}
+
+export async function revokeSessionByRefreshToken(refreshToken: string) {
+  const refreshTokenHash = await hashToken(refreshToken);
+
+  const session = await repository.findSessionByRefreshTokenHash(refreshTokenHash);
+
+  if (session && !session.revokedAt) {
+    await repository.revokeSessionById(session.id);
+  }
+}
+
+export async function getSessionByRefreshToken(refreshToken: string) {
+  const refreshTokenHash = await hashToken(refreshToken);
+
+  return await repository.findSessionByRefreshTokenHash(refreshTokenHash);
+}
+
+export async function changePassword(userId: string, body: ChangePasswordInput) {
+  const user = await repository.findUserByIdWithPassword(userId);
+
+  if (!user) return null;
+
+  const isMatch = await Bun.password.verify(body.currentPassword, user.password);
+
+  //   false  – current password incorrect
   if (!isMatch) return false;
 
-  const argonHash = await Bun.password.hash(newPassword, {
-    algorithm: "argon2id",
-    memoryCost: 1024 * 64, // 64MiB
-    timeCost: 3,
-  });
+  const passwordHash = await hashPassword(body.newPassword);
 
-  await repository.updateUserPassword(userId, argonHash);
-  await repository.deleteAllSessionsForUser(userId);
+  await repository.updateUserPassword(userId, passwordHash);
+  await repository.revokeAllUserSessions(userId);
 
+  //   true   – password changed and all sessions revoked
   return true;
+}
+
+export async function logoutAll(userId: string) {
+  await repository.revokeAllUserSessions(userId);
+}
+
+export async function rotateSession(data: {
+  oldSessionId: string;
+  userId: string;
+  newRefreshToken: string;
+  expiresAt: Date;
+}) {
+  const refreshTokenHash = await hashToken(data.newRefreshToken);
+
+  await repository.rotateSessiontransaction({
+    oldSessionId: data.oldSessionId,
+    userId: data.userId,
+    newRefreshTokenHash: refreshTokenHash,
+    expiresAt: data.expiresAt,
+  });
 }

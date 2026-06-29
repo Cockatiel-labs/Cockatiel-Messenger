@@ -1,4 +1,4 @@
-import { pool } from "../../db";
+import { pool } from "..";
 
 export async function checkDatabaseHealth() {
   try {

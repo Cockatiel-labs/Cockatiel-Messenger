@@ -40,6 +40,11 @@ export const checkUsernameQuery = z.object({
     .regex(usernameRegex, "Username must start with a letter and contain only letters, numbers, and underscores"),
 });
 
+export const cookieSchema = z.object({
+  accessToken: z.string().optional(),
+  refreshToken: z.string().optional(),
+});
+
 export const changePasswordSchema = z
   .object({
     currentPassword: z.string({ error: "Current password is required" }).min(1),
@@ -58,4 +63,5 @@ export const changePasswordSchema = z
 export type SignupInput = z.infer<typeof signupSchema>;
 export type SigninInput = z.infer<typeof signinSchema>;
 export type CheckUsernameQueryInput = z.infer<typeof checkUsernameQuery>;
-export type changePasswordSchema = z.infer<typeof changePasswordSchema>;
+export type CookieSchemaInput = z.infer<typeof cookieSchema>;
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

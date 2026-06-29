@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import type { Elysia } from "elysia";
 
 const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 const ALLOWED_SITES = new Set(["same-origin", "same-site"]);
@@ -26,11 +26,11 @@ export const modernCsrf = (config?: { trustedOrigins?: string[] }) => (app: Elys
     })
     .onAfterHandle(({ set }) => {
       // This ensures caches treat requests from different origins differently
-      const currentVary = set.headers["Vary"];
+      const currentVary = set.headers.Vary;
       const varyString = typeof currentVary === "string" ? currentVary : "";
 
       if (!varyString.includes("Sec-Fetch-Site")) {
-        set.headers["Vary"] = varyString ? `${varyString}, Sec-Fetch-Site` : "Sec-Fetch-Site";
+        set.headers.Vary = varyString ? `${varyString}, Sec-Fetch-Site` : "Sec-Fetch-Site";
       }
     });
 };

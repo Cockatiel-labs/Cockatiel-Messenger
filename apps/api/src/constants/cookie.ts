@@ -1,20 +1,4 @@
-import { envConfig } from "../config/env";
-import { ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP } from "./jwt";
-
-const sameSitePolicy = envConfig.NODE_ENV === "production" ? "strict" : "lax";
-
-export const accessTokenCookieOptions = {
-  httpOnly: true,
-  maxAge: ACCESS_TOKEN_EXP,
-  secure: envConfig.NODE_ENV === "production",
-  sameSite: sameSitePolicy,
-  path: "/",
-} as const;
-
-export const refreshTokenCookieOptions = {
-  httpOnly: true,
-  maxAge: REFRESH_TOKEN_EXP,
-  secure: envConfig.NODE_ENV === "production",
-  sameSite: sameSitePolicy,
-  path: "/api/v1/auth/refresh",
-} as const;
+export const ACCESS_TOKEN_EXP = 15 * 60; // 15 minutes
+export const REFRESH_TOKEN_EXP = 7 * 24 * 60 * 60; // 7 days
+export const Access_COOKIE_PATH = "/";
+export const REFRESH_COOKIE_PATH = "/api/v1/auth";

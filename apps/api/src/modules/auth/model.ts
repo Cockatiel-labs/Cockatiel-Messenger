@@ -1,6 +1,8 @@
 import { t, type UnwrapSchema } from "elysia";
 
 export const AuthResult = {
+  checkUsernameResponse: t.Boolean(),
+
   authResponse: t.Object({
     success: t.Literal(true),
     message: t.String(),
@@ -12,9 +14,12 @@ export const AuthResult = {
     }),
   }),
 
-  checkUsernameResponse: t.Boolean(),
-
   logoutResponse: t.Object({
+    success: t.Literal(true),
+    message: t.String(),
+  }),
+
+  refreshResponse: t.Object({
     success: t.Literal(true),
     message: t.String(),
   }),
@@ -23,7 +28,7 @@ export const AuthResult = {
     success: t.Literal(false),
     message: t.String(),
   }),
-} as const;
+};
 
 export type AuthModel = {
   [K in keyof typeof AuthResult]: UnwrapSchema<(typeof AuthResult)[K]>;

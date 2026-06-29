@@ -1,6 +1,5 @@
 import Elysia, { t } from "elysia";
-import { getSessionById } from "../modules/auth/repository";
-import { accessJwtConfig } from "../plugins/jwt";
+import { accessJwtConfig } from "../config/jwt";
 
 export const authGuard = new Elysia({ name: "authGuard" })
   .use(accessJwtConfig)
@@ -9,24 +8,16 @@ export const authGuard = new Elysia({ name: "authGuard" })
       accessToken: t.String(),
     }),
   })
-  .resolve({ as: "global" }, async ({ accessJwtNamespace, cookie: { accessToken }, status }) => {
+  .resolve({ as: "global" }, async ({ accessJwt, cookie: { accessToken }, status }) => {
     const token = accessToken.value as string | undefined;
 
     if (!token) {
       throw status(401, "Unauthorized");
     }
 
-    const payload: { sub: string; sid: string; exp: number; iat: number } | false =
-      await accessJwtNamespace.verify(token);
+    const payload: { sub: string; sid: string; exp: number; iat: number } | false = await accessJwt.verify(token);
 
     if (!payload) {
-      throw status(401, "Unauthorized");
-    }
-    // Fetch session from DB to ensure it's still active
-
-    const session = await getSessionById(payload.sid);
-
-    if (!session) {
       throw status(401, "Unauthorized");
     }
 
